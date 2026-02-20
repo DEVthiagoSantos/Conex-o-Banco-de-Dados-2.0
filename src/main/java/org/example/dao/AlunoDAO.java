@@ -74,28 +74,31 @@ public class AlunoDAO {
     }
 
     //CONSULTAS
-    public List<Aluno> buscarPorNome(String nome) throws SQLException {
+    public Aluno buscarPorAluno(String nome) throws SQLException {
 
         String sql = "SELECT * FROM alunos WHERE nome LIKE ?";
-        List<Aluno> lista = new ArrayList<>();
 
         try (Connection conn = Conexao.conexao();
             PreparedStatement stmt = conn.prepareStatement(sql)){
 
-            stmt.setString(1, '%' + nome + '%');
+            stmt.setString(1, "%" + nome + "%");
 
             try (ResultSet rs = stmt.executeQuery()) {
 
-                while (rs.next()) {
+                if (rs.next()) {
+
                     Aluno aluno = new Aluno();
                     aluno.setId_aluno(rs.getInt("id_aluno"));
                     aluno.setNome(rs.getString("nome"));
                     aluno.setEmail(rs.getString("email"));
-                    lista.add(aluno);
+
+                    return aluno;
                 }
             }
         }
 
-        return lista;
+        return null;
     }
+
+
 }
