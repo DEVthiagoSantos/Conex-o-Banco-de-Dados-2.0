@@ -27,9 +27,13 @@ public class MatriculaService {
             throw new RuntimeException("Curso não encontrado");
         }
 
-        Matricula matricula = new Matricula(aluno, curso);
+        if (daoMatricula.existeMatricula(aluno.getId_aluno(), curso.getId_curso())) {
+            throw new RuntimeException("Aluno já está matriculado neste curso");
+        }
 
+        Matricula matricula = new Matricula(aluno, curso);
         daoMatricula.inserir(matricula);
+
 
     }
 }
