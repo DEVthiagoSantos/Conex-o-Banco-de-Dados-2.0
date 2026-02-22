@@ -1,5 +1,7 @@
 package org.example.dao;
 
+import com.mysql.cj.x.protobuf.MysqlxPrepare;
+import com.sun.security.jgss.GSSUtil;
 import org.example.connection.Conexao;
 import org.example.model.Aluno;
 import org.example.model.Curso;
@@ -110,6 +112,31 @@ public class MatriculaDAO {
 
                 while (rs.next()) {
                     System.out.println(" - " + rs.getString("curso"));
+                }
+            }
+        }
+    }
+
+    //Contagem de Alunos
+    public void contagemDeAlunos() throws SQLException {
+
+        String sql = """
+                SELECT cursos.nome AS curso,
+                       COUNT(matriculas.id_aluno) AS aluno
+                FROM matriculas
+                INNER JOIN cursos ON matriculas.id_curso = cursos.id_curso
+                GROUP BY cursos.nome""";
+
+        try (Connection conn = Conexao.conexao();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            try (ResultSet rs = stmt.executeQuery()) {
+
+                while (rs.next()) {
+
+                    System.out.println(" - " + rs.getString("curso")
+                            + " | " + rs.getString("aluno")
+                            + " aluno/s");
                 }
             }
         }

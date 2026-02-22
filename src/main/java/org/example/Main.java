@@ -43,7 +43,8 @@ public class Main {
                 [ 2 ] Atualizar Matricula
                 [ 3 ] Deletar Aluno
                 [ 4 ] Deletar Matricula
-                [ 5 ] <= Voltar
+                [ 5 ] Contagem Alunos
+                [ 6 ] <= Voltar
                 ====================================""";
 
         System.out.println(menu2);
@@ -123,6 +124,9 @@ public class Main {
                 deletarMatricula();
                 break;
             case 5 :
+                contagemDeAlunos();
+                break;
+            case 6 :
                 return false;
         }
 
@@ -139,6 +143,12 @@ public class Main {
         Aluno aluno = new Aluno(nome, email);
         AlunoDAO dao = new AlunoDAO();
         dao.inserir(aluno);
+    }
+
+    public static void contagemDeAlunos() throws SQLException {
+
+        MatriculaDAO daoM = new MatriculaDAO();
+        daoM.contagemDeAlunos();
     }
 
     public static void listarAlunos() throws SQLException {
