@@ -7,7 +7,10 @@ import org.example.model.Aluno;
 import org.example.model.Curso;
 import org.example.model.Matricula;
 
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.List;
@@ -45,28 +48,56 @@ public class MatriculaDAO {
         }
     }
 
-    //ROAD - Alunos Matriculados
-    public void listarMatriculas() throws SQLException {
+    // ROAD - Alunos Matriculados
+    public List<Matricula> listarAunosMatriculados() throws SQLException {
 
         String sql = """
                 SELECT matriculas.id_matricula AS id_matricula,
+                       matriculas.data_matricula AS data_matricula,
+                       alunos.id_aluno AS id_aluno,
                        alunos.nome AS aluno,
+                       cursos.id_curso AS id_curso,
                        cursos.nome AS curso
                 FROM matriculas
                 INNER JOIN alunos ON matriculas.id_aluno = alunos.id_aluno
                 INNER JOIN cursos ON matriculas.id_curso = cursos.id_curso""";
 
-        try (Connection conn = Conexao.conexao();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+        List<Matricula> lista = new ArrayList<>();
+        try (Connection con = Conexao.conexao();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
 
-            while (rs.next()) {
+            try (ResultSet rs = stmt.executeQuery()) {
 
-                System.out.println(rs.getString("id_matricula")
-                        + " | " + rs.getString("aluno")
-                        + " | " + rs.getString("curso"));
+                while (rs.next()) {
+
+                    // Aluno
+                    Aluno aluno = new Aluno();
+                    aluno.setId_aluno(rs.getInt("id_aluno"));
+                    aluno.setNome(rs.getString("aluno"));
+
+                    // Curso
+                    Curso curso = new Curso();
+                    curso.setId_curso(rs.getInt("id_curso"));
+                    curso.setNome(rs.getString("curso"));
+
+                    // Data e Hora
+                    LocalDateTime data = rs.getTimestamp("data_matricula")
+                            .toLocalDateTime();
+
+                    // Matricula e adicionar a lista
+                    Matricula matricula = new Matricula(
+                            rs.getInt("id_matricula"),
+                            aluno,
+                            curso,
+                            data
+                    );
+
+                    lista.add(matricula);
+                }
             }
         }
+
+        return lista;
     }
 
     //Listar alunos de curso especifico

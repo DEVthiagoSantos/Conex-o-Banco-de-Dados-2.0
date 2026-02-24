@@ -5,9 +5,11 @@ import org.example.dao.CursoDAO;
 import org.example.dao.MatriculaDAO;
 import org.example.model.Aluno;
 import org.example.model.Curso;
+import org.example.model.Matricula;
 import org.example.service.MatriculaService;
 
 import java.sql.SQLException;
+import java.time.format.DateTimeFormatter;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -189,7 +191,14 @@ public class Main {
 
         MatriculaDAO daoM = new MatriculaDAO();
 
-        daoM.listarMatriculas();
+        // Formatar alunos
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        for (Matricula m : daoM.listarAunosMatriculados()) {
+            System.out.println(m.getIdMatricula()
+                    + " | " + m.getAluno().getNome()
+                    + " | " + m.getCurso().getNome()
+                    + " | "+ m.getData().format(formatter));
+        }
     }
 
     public static void listarAlunoEmCursos() throws SQLException {

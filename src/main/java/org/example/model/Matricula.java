@@ -1,10 +1,13 @@
 package org.example.model;
 
+import java.time.LocalDateTime;
+
 public class Matricula {
 
     private int idMatricula;
     private Aluno aluno;
     private Curso curso;
+    private LocalDateTime data;
 
     public Matricula () {}
 
@@ -13,10 +16,12 @@ public class Matricula {
         this.curso = curso;
     }
 
-    public Matricula (Aluno aluno, Curso curso, int idMatricula) {
+    public Matricula (int idMatricula, Aluno aluno, Curso curso, LocalDateTime data) {
+
+        this.idMatricula = idMatricula;
         this.aluno = aluno;
         this.curso = curso;
-        this.idMatricula = idMatricula;
+        this.data = data;
     }
 
     public int getIdMatricula() {
@@ -41,5 +46,13 @@ public class Matricula {
 
     public void setCurso(Curso curso) {
         this.curso = curso;
+    }
+
+    public LocalDateTime getData() {
+        return data;
+    }
+
+    public void setData(LocalDateTime data) {
+        this.data = data;
     }
 }
