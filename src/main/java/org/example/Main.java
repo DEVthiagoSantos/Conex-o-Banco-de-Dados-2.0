@@ -4,8 +4,10 @@ import org.example.dao.AlunoDAO;
 import org.example.dao.CursoDAO;
 import org.example.dao.MatriculaDAO;
 import org.example.model.Aluno;
+import org.example.model.Curso;
 import org.example.model.Matricula;
 import org.example.service.AlunoService;
+import org.example.service.CursoService;
 import org.example.service.MatriculaService;
 
 import java.sql.SQLException;
@@ -23,6 +25,7 @@ public class Main {
             cursoDAO,
             matriculaDAO);
     static AlunoService alunoService = new AlunoService();
+    static CursoService cursoService = new CursoService(cursoDAO);
 
     public static void menuMatricula() {
 
@@ -66,8 +69,8 @@ public class Main {
                 [ 1 ] Inserir Curso
                 [ 2 ] Listar Cursos
                 [ 3 ] Listar Alunos em Curso
-                [ 4 ] Atualizar Aluno
-                [ 5 ] Deletar Aluno
+                [ 4 ] Atualizar Curso
+                [ 5 ] Deletar Curso
                 [ 6 ] < Matricula
                 [ 7 ] < Alunos
                 ===========================================""";
@@ -142,17 +145,19 @@ public class Main {
         switch (opcao) {
 
             case 1 :
-                // Inserir curso
+                inserirCurso();
                 break;
             case 2 :
-                // Listar Cursos
+                listarCursos();
                 break;
             case 3 :
                 listarAlunosEmCurso();
                 break;
             case 4 :
+                atualizarCurso();
                 break;
             case 5 :
+                deletarCurso();
                 break;
             case 6 :
                 return false;
@@ -222,7 +227,7 @@ public class Main {
             System.out.print("ID do aluno: ");
             int idAluno = Integer.parseInt(input.nextLine());
 
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd//MM/yyyy HH:mm");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
             Aluno aluno = alunoDAO.buscarPorId(idAluno);
             System.out.println("Cursos de " + aluno.getNome() + ":");
@@ -338,6 +343,48 @@ public class Main {
     }
 
     // Opções de Curso
+    public static void inserirCurso() throws SQLException {
+
+        try {
+            System.out.print("Nome do curso: ");
+            String curso = input.nextLine();
+            cursoService.inserirCurso(curso);
+        } catch (RuntimeException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public static void listarCursos() throws SQLException {
+        for (Curso c : cursoService.listarCursos()) {
+            System.out.println("- "
+                    + c.getId_curso()
+                    + " | " + c.getNome());
+        }
+    }
+
+    public static void deletarCurso() throws SQLException {
+        try {
+            System.out.print("ID do curso: ");
+            int idCurso = Integer.parseInt(input.nextLine());
+            cursoService.deletarCurso(idCurso);
+        } catch (RuntimeException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public static void atualizarCurso() throws SQLException {
+        try {
+
+            System.out.println("ID do curso que irá ser atualizado: ");
+            int idCurso = Integer.parseInt(input.nextLine());
+            System.out.println("Nome novo: ");
+            String nomeCurso = input.nextLine();
+            cursoService.atualizarCurso(nomeCurso, idCurso);
+
+        } catch (RuntimeException e) {
+            System.out.println(e.getMessage());
+        }
+    }
 
 
     public static void main(String[] args) throws SQLException {

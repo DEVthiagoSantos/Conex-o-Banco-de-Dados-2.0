@@ -7,7 +7,6 @@ import org.example.model.Aluno;
 import org.example.model.Curso;
 import org.example.model.Matricula;
 import java.sql.SQLException;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public record MatriculaService(AlunoDAO alunoDAO, CursoDAO cursoDAO, MatriculaDAO matriculaDAO) {
