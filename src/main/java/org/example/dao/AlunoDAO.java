@@ -74,7 +74,7 @@ public class AlunoDAO {
     }
 
     //CONSULTAS
-    public Aluno buscarPorAluno(String nome) throws SQLException {
+    public Aluno buscarPorNomeAluno(String nome) throws SQLException {
 
         String sql = "SELECT * FROM alunos WHERE nome LIKE ?";
 
@@ -87,12 +87,7 @@ public class AlunoDAO {
 
                 if (rs.next()) {
 
-                    Aluno aluno = new Aluno();
-                    aluno.setId_aluno(rs.getInt("id_aluno"));
-                    aluno.setNome(rs.getString("nome"));
-                    aluno.setEmail(rs.getString("email"));
-
-                    return aluno;
+                    return montagemAluno(rs);
                 }
             }
         }
@@ -100,5 +95,36 @@ public class AlunoDAO {
         return null;
     }
 
+    public Aluno buscarPorId(int idAluno) throws SQLException {
+
+        String sql = "SELECT * FROM alunos WHERE id_aluno = ?";
+
+        try (Connection conn = Conexao.conexao();
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idAluno);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+
+                if (rs.next()) {
+
+                    return montagemAluno(rs);
+
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public Aluno montagemAluno(ResultSet rs) throws SQLException {
+
+        Aluno aluno = new Aluno();
+        aluno.setId_aluno(rs.getInt("id_aluno"));
+        aluno.setNome(rs.getString("nome"));
+        aluno.setEmail(rs.getString("email"));
+
+        return aluno;
+    }
 
 }

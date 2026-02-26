@@ -4,242 +4,355 @@ import org.example.dao.AlunoDAO;
 import org.example.dao.CursoDAO;
 import org.example.dao.MatriculaDAO;
 import org.example.model.Aluno;
-import org.example.model.Curso;
 import org.example.model.Matricula;
+import org.example.service.AlunoService;
 import org.example.service.MatriculaService;
 
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
-import java.util.InputMismatchException;
+import java.util.Map;
 import java.util.Scanner;
 
 public class Main {
 
     static Scanner input = new Scanner(System.in);
+    static AlunoDAO alunoDAO = new AlunoDAO();
+    static CursoDAO cursoDAO = new CursoDAO();
+    static MatriculaDAO matriculaDAO = new MatriculaDAO();
+    static MatriculaService matriculaService = new MatriculaService(alunoDAO,
+            cursoDAO,
+            matriculaDAO);
+    static AlunoService alunoService = new AlunoService();
 
-    // Exibir Menu
-    public static void exibirMenu() {
+    public static void menuMatricula() {
 
-        String menu = """
-                ============== MENU ==============
-                [ 1 ] Cadastrar aluno
-                [ 2 ] Listar cursos
-                [ 3 ] Listar alunos
-                [ 4 ] Matricular aluno em curso
-                [ 5 ] Listar alunos matriculados
-                [ 6 ] Alunos em curso especifico (ID)
-                [ 7 ] Cursos de aluno especifico (ID)
-                [ 8 ] Next =>
-                [ 9 ] Sair
-                =================================""";
-        System.out.println(menu);
-        System.out.print("Escolha Opção: ");
+        String menuMatricula = """
+                ================ MATRICULA > ===============
+                [ 1 ] Inserir Matricula
+                [ 2 ] Listar Matriculas
+                [ 3 ] Contagem de Alunos
+                [ 4 ] Atualizar Matricula
+                [ 5 ] Deletar matricula
+                [ 6 ] Alunos >
+                [ 7 ] Cursos >
+                [ 8 ] Sair
+                ===========================================""";
 
+        System.out.println(menuMatricula);
+        System.out.print("Escolha: ");
     }
 
-    public static void exibirMenu2() {
+    public static void exibirMenuAluno() {
 
-        String menu2 = """
-                ============== MENU 2 ==============
-                [ 1 ] Atualizar Aluno
-                [ 2 ] Atualizar Matricula
-                [ 3 ] Deletar Aluno
-                [ 4 ] Deletar Matricula
-                [ 5 ] Contagem Alunos
-                [ 6 ] <= Voltar
-                ====================================""";
+        String menuAluno = """
+                ================ < Aluno > ===============
+                [ 1 ] Inserir Aluno
+                [ 2 ] Listar Alunos
+                [ 3 ] Listar Cursos de Aluno
+                [ 4 ] Atualizar Aluno
+                [ 5 ] Deletar Aluno
+                [ 6 ] < Matricula
+                [ 7 ] Cursos >
+                ===========================================""";
 
-        System.out.println(menu2);
-        System.out.print("Escolha Opção: ");
+        System.out.println(menuAluno);
+        System.out.print("Escolha: ");
     }
 
-    public static void menu2() throws SQLException {
+    public static void exibirMenuCurso() {
 
-        boolean executanto2 = true;
-        while (executanto2) {
-            exibirMenu2();
-            int opcao = input.nextInt();
-            executanto2 = executaOpcao2(opcao);
-        }
+        String menuCurso = """
+                ================ < Curso ===============
+                [ 1 ] Inserir Curso
+                [ 2 ] Listar Cursos
+                [ 3 ] Listar Alunos em Curso
+                [ 4 ] Atualizar Aluno
+                [ 5 ] Deletar Aluno
+                [ 6 ] < Matricula
+                [ 7 ] < Alunos
+                ===========================================""";
+        System.out.println(menuCurso);
+        System.out.print("Escolha: ");
     }
 
-    // Lê a opção do usuario
-    public static int opcaoUsuario() {
-
-        try {
-            int opcao = input.nextInt();
-            input.nextLine();
-            return opcao;
-        } catch (InputMismatchException e) {
-            System.out.println("Opcão Invalida!");
-            input.nextLine();
-            return 5;
-        }
-
-
-    }
-
-    //Executa a opção escolhida
-    public static boolean executaOpcao(int opcao) throws SQLException {
+    public static boolean executarOpcaoMatricula(int opcao) throws SQLException {
 
         switch (opcao) {
 
             case 1 :
-                cadastrarAluno();
+                inserirMatricula();
                 break;
             case 2 :
-                listarCursos();
+                listarMatriculas();
                 break;
             case 3 :
-                listarAlunos();
+                contagemDeAlunos();
                 break;
             case 4 :
-                matricularAlunoCurso();
+                atualizarMatricula();
                 break;
             case 5 :
-                listarAlunosMatriculados();
+                deletarMatricula();
                 break;
             case 6 :
-                listarAlunoEmCursos();
+                menuAluno();
                 break;
             case 7 :
-                listarCursosDeAluno();
+                menuCurso();
                 break;
             case 8 :
-                menu2();
-                break;
-            case 9 :
                 return false;
 
-            default:
-                System.out.println("Opção invalida");
         }
 
         return true;
     }
 
-    public static boolean executaOpcao2(int opcao) throws SQLException {
+    public static boolean executarOpcaoAluno(int opcao) throws SQLException {
 
         switch (opcao) {
 
+            case 1 :
+                inserirAluno();
+                break;
+            case 2 :
+                listarAlunos();
+                break;
+            case 3 :
+                listarCursosDeAluno();
+                break;
             case 4 :
-                deletarMatricula();
+                atualizarAluno();
                 break;
             case 5 :
-                contagemDeAlunos();
+                deletarAluno();
                 break;
             case 6 :
                 return false;
+            case 7 :
+                menuCurso();
+                break;
         }
 
         return true;
     }
 
-    // Métodos do sistema - ESCOLHAS
-    public static void cadastrarAluno() throws SQLException {
-        System.out.print("Nome: ");
-        String nome = input.nextLine();
-        System.out.print("Email: ");
-        String email = input.nextLine();
+    public static boolean executarOpcaoCurso(int opcao) throws SQLException {
 
-        Aluno aluno = new Aluno(nome, email);
-        AlunoDAO dao = new AlunoDAO();
-        dao.inserir(aluno);
+        switch (opcao) {
+
+            case 1 :
+                // Inserir curso
+                break;
+            case 2 :
+                // Listar Cursos
+                break;
+            case 3 :
+                listarAlunosEmCurso();
+                break;
+            case 4 :
+                break;
+            case 5 :
+                break;
+            case 6 :
+                return false;
+            case 7 :
+                menuAluno();
+                break;
+        }
+
+        return true;
     }
 
-    public static void contagemDeAlunos() throws SQLException {
-
-        MatriculaDAO daoM = new MatriculaDAO();
-        daoM.contagemDeAlunos();
-    }
-
-    public static void listarAlunos() throws SQLException {
-        AlunoDAO dao = new AlunoDAO();
-
-        for (Aluno alunos : dao.listarAlunos()) {
-            System.out.println(alunos.getId_aluno()
-                    + " | " + alunos.getNome()
-                    + " | " + alunos.getEmail());
+    public static void menuAluno() throws SQLException {
+        boolean executando = true;
+        while (executando) {
+            exibirMenuAluno();
+            try {
+                int opcao = Integer.parseInt(input.nextLine());
+                executando = executarOpcaoAluno(opcao);
+            } catch (NumberFormatException e){
+                System.out.println("Inserir um numero valido.");
+            }
         }
     }
 
-    public static void listarCursos() throws SQLException {
-        CursoDAO daoC = new CursoDAO();
-        for (Curso cursos : daoC.listarCursos()) {
-            System.out.println(cursos.getId_curso()
-                    + " | " +cursos.getNome());
+    public static void menuCurso() throws SQLException {
+        boolean executando = true;
+        while (executando) {
+            exibirMenuCurso();
+            try {
+                int opcao = Integer.parseInt(input.nextLine());
+                executando = executarOpcaoCurso(opcao);
+            } catch (NumberFormatException e) {
+                System.out.println("Inserir um numero valido.");
+            }
         }
     }
 
-    public static void matricularAlunoCurso() throws SQLException {
-        System.out.print("Nome: ");
-        String nome = input.nextLine();
-        System.out.println("Nome do Curso: ");
-        String cursoNome = input.nextLine();
+    // Opções Matricula
+    public static void inserirMatricula() throws SQLException {
+        System.out.print("Nome do Aluno: ");
+        String aluno = input.nextLine();
+        System.out.print("Nome do Curso: ");
+        String curso = input.nextLine();
 
-        System.out.println("Matriculando....");
-        MatriculaService matricula = new MatriculaService();
         try {
-            matricula.matricular(nome, cursoNome);
+            matriculaService.matricular(aluno, curso);
         } catch (RuntimeException e) {
             System.out.println(e.getMessage());
         }
 
     }
 
-    public static void listarAlunosMatriculados() throws SQLException {
+    public static void listarMatriculas() throws SQLException {
 
-        MatriculaDAO daoM = new MatriculaDAO();
-
-        // Formatar alunos
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-        for (Matricula m : daoM.listarAunosMatriculados()) {
+        for (Matricula m : matriculaService.listarMatriculas()) {
             System.out.println(m.getIdMatricula()
                     + " | " + m.getAluno().getNome()
                     + " | " + m.getCurso().getNome()
-                    + " | "+ m.getData().format(formatter));
+                    + " | " + m.getData().format(formatter));
         }
-    }
-
-    public static void listarAlunoEmCursos() throws SQLException {
-
-        System.out.print("ID do curso: ");
-
-        int id = input.nextInt();
-        MatriculaDAO daoM = new MatriculaDAO();
-        daoM.listarAlunosCursos(id);
     }
 
     public static void listarCursosDeAluno() throws SQLException {
 
-        System.out.print("ID do aluno: ");
-        int id = input.nextInt();
-        MatriculaDAO daoM = new MatriculaDAO();
-        daoM.listarCursosAluno(id);
+        try {
+            System.out.print("ID do aluno: ");
+            int idAluno = Integer.parseInt(input.nextLine());
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd//MM/yyyy HH:mm");
+
+            Aluno aluno = alunoDAO.buscarPorId(idAluno);
+            System.out.println("Cursos de " + aluno.getNome() + ":");
+            for (Matricula m : matriculaService.listarCursosDeAluno(idAluno)) {
+                System.out.println("- "
+                        + m.getCurso().getNome()
+                        + " | " + m.getData().format(formatter));
+            }
+        } catch (RuntimeException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public static void contagemDeAlunos() throws SQLException {
+
+
+        Map<String, Integer> mapa = matriculaDAO.contagemDeAlunos();
+        for (Map.Entry<String, Integer> entry : mapa.entrySet()) {
+            System.out.println(entry.getKey() + " | " + entry.getValue());
+        }
+    }
+
+    public static void listarAlunosEmCurso() throws SQLException {
+        System.out.print("ID do curso: ");
+        int idCurso = Integer.parseInt(input.nextLine());
+
+        for (String a : matriculaService.listarAlunosEmCurso(idCurso)) {
+            System.out.println("- " + a);
+        }
     }
 
     public static void deletarMatricula() throws SQLException {
 
-        System.out.print("ID Matricula: ");
-        int idMatricula = input.nextInt();
-
-        MatriculaDAO daoM = new MatriculaDAO();
-        daoM.deletarMatricula(idMatricula);
+        try {
+            System.out.print("Nome do Aluno: ");
+            String aluno = input.nextLine();
+            System.out.print("Nome do Curso: ");
+            String curso = input.nextLine();
+            matriculaService.deletar(aluno, curso);
+        } catch (RuntimeException e) {
+            System.out.println(e.getMessage());
+        }
     }
+
+    public static void atualizarMatricula() throws SQLException {
+
+        try {
+            System.out.print("Curso Atual: ");
+            String cursoAnt = input.nextLine();
+            System.out.print("Nome do Aluno: ");
+            String nomeAluno = input.nextLine();
+            System.out.print("Curso que deseja ser inserido: ");
+            String cursoNov = input.nextLine();
+
+            matriculaService.atualizar(cursoNov, nomeAluno, cursoAnt);
+        } catch (RuntimeException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    // Opções Alunos
+
+    public static void inserirAluno() throws SQLException {
+
+        try {
+            System.out.print("Nome aluno: ");
+            String nome = input.nextLine();
+            System.out.println("Email: ");
+            String email = input.nextLine();
+
+            alunoService.inserirAluno(nome, email);
+        } catch (RuntimeException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public static void listarAlunos() throws SQLException {
+
+        alunoService.listarAlunos();
+
+    }
+
+    public static void deletarAluno() throws SQLException {
+
+        try {
+            System.out.print("Inserir o ID do aluno: ");
+            int idAluno = Integer.parseInt(input.nextLine());
+
+            alunoService.deletarAluno(idAluno);
+        } catch (RuntimeException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public static void atualizarAluno() throws SQLException {
+
+        try {
+            System.out.println("O id inserido deve ser o exato id do aluno.");
+            System.out.println("Nome e Email novos.");
+            System.out.print("ID do aluno: ");
+            int idAluno = Integer.parseInt(input.nextLine());
+            System.out.print("Nome: ");
+            String nomeAluno = input.nextLine();
+            System.out.print("Email: ");
+            String emailAluno = input.nextLine();
+
+            alunoService.atualizarAluno(idAluno, nomeAluno, emailAluno);
+        } catch (NumberFormatException e) {
+            System.out.println("Digite um numero valido.");
+        } catch (RuntimeException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    // Opções de Curso
 
 
     public static void main(String[] args) throws SQLException {
 
         boolean executando = true;
 
-
         while (executando) {
-            exibirMenu();
-            int opcao = opcaoUsuario();
-            executando = executaOpcao(opcao);
-
+            menuMatricula();
+            try {
+                int opcao = Integer.parseInt(input.nextLine());
+                executando = executarOpcaoMatricula(opcao);
+            } catch (Exception e) {
+                System.out.println("Digite um numero valido.");
+            }
         }
 
-        System.out.println("Sistema encerrado");
     }
 }
