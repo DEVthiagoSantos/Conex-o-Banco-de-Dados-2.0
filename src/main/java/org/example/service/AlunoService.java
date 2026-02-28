@@ -4,6 +4,7 @@ import org.example.dao.AlunoDAO;
 import org.example.model.Aluno;
 
 import java.sql.SQLException;
+import java.util.List;
 
 public class AlunoService {
 
@@ -41,14 +42,9 @@ public class AlunoService {
 
     }
 
-    public void listarAlunos() throws SQLException {
+    public List<Aluno> listarAlunos() throws SQLException {
 
-        for (Aluno alunos : alunoDAO.listarAlunos()) {
-            System.out.println("- "
-                    + alunos.getId_aluno()
-                    + " | " + alunos.getNome()
-                    + " | " + alunos.getEmail());
-        }
+        return alunoDAO.listarAlunos();
     }
 
     public void deletarAluno(int idAluno) throws SQLException {

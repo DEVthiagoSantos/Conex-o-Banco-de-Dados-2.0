@@ -3,6 +3,7 @@ package org.example;
 import org.example.dao.AlunoDAO;
 import org.example.dao.CursoDAO;
 import org.example.dao.MatriculaDAO;
+import org.example.enums.EstadoMenu;
 import org.example.model.Aluno;
 import org.example.model.Curso;
 import org.example.model.Matricula;
@@ -26,8 +27,10 @@ public class Main {
             matriculaDAO);
     static AlunoService alunoService = new AlunoService();
     static CursoService cursoService = new CursoService(cursoDAO);
+    public static final DateTimeFormatter formatar_data =
+            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-    public static void menuMatricula() {
+    public static EstadoMenu menuMatricula() throws SQLException {
 
         String menuMatricula = """
                 ================ MATRICULA > ===============
@@ -43,9 +46,13 @@ public class Main {
 
         System.out.println(menuMatricula);
         System.out.print("Escolha: ");
+
+        int opcao = Integer.parseInt(input.nextLine());
+
+        return executarOpcaoMatricula(opcao);
     }
 
-    public static void exibirMenuAluno() {
+    public static EstadoMenu exibirMenuAluno() throws SQLException {
 
         String menuAluno = """
                 ================ < Aluno > ===============
@@ -56,13 +63,18 @@ public class Main {
                 [ 5 ] Deletar Aluno
                 [ 6 ] < Matricula
                 [ 7 ] Cursos >
+                [ 8 ] SAIR
                 ===========================================""";
 
         System.out.println(menuAluno);
         System.out.print("Escolha: ");
+
+        int opcao = Integer.parseInt(input.nextLine());
+
+        return executarOpcaoAluno(opcao);
     }
 
-    public static void exibirMenuCurso() {
+    public static EstadoMenu exibirMenuCurso() throws SQLException {
 
         String menuCurso = """
                 ================ < Curso ===============
@@ -73,12 +85,17 @@ public class Main {
                 [ 5 ] Deletar Curso
                 [ 6 ] < Matricula
                 [ 7 ] < Alunos
+                [ 8 ] SAIR
                 ===========================================""";
         System.out.println(menuCurso);
         System.out.print("Escolha: ");
+
+        int opcao = Integer.parseInt(input.nextLine());
+
+        return executarOpcaoCurso(opcao);
     }
 
-    public static boolean executarOpcaoMatricula(int opcao) throws SQLException {
+    public static EstadoMenu executarOpcaoMatricula(int opcao) throws SQLException {
 
         switch (opcao) {
 
@@ -98,20 +115,18 @@ public class Main {
                 deletarMatricula();
                 break;
             case 6 :
-                menuAluno();
-                break;
+                return EstadoMenu.ALUNO;
             case 7 :
-                menuCurso();
-                break;
+                return EstadoMenu.CURSO;
             case 8 :
-                return false;
+                return EstadoMenu.SAIR;
 
         }
 
-        return true;
+        return EstadoMenu.MATRICULA;
     }
 
-    public static boolean executarOpcaoAluno(int opcao) throws SQLException {
+    public static EstadoMenu executarOpcaoAluno(int opcao) throws SQLException {
 
         switch (opcao) {
 
@@ -131,16 +146,17 @@ public class Main {
                 deletarAluno();
                 break;
             case 6 :
-                return false;
+                return EstadoMenu.MATRICULA;
             case 7 :
-                menuCurso();
-                break;
+                return EstadoMenu.CURSO;
+            case 8 :
+                return EstadoMenu.SAIR;
         }
 
-        return true;
+        return EstadoMenu.ALUNO;
     }
 
-    public static boolean executarOpcaoCurso(int opcao) throws SQLException {
+    public static EstadoMenu executarOpcaoCurso(int opcao) throws SQLException {
 
         switch (opcao) {
 
@@ -160,39 +176,14 @@ public class Main {
                 deletarCurso();
                 break;
             case 6 :
-                return false;
+                return EstadoMenu.MATRICULA;
             case 7 :
-                menuAluno();
-                break;
+                return EstadoMenu.ALUNO;
+            case 8 :
+                return EstadoMenu.SAIR;
         }
 
-        return true;
-    }
-
-    public static void menuAluno() throws SQLException {
-        boolean executando = true;
-        while (executando) {
-            exibirMenuAluno();
-            try {
-                int opcao = Integer.parseInt(input.nextLine());
-                executando = executarOpcaoAluno(opcao);
-            } catch (NumberFormatException e){
-                System.out.println("Inserir um numero valido.");
-            }
-        }
-    }
-
-    public static void menuCurso() throws SQLException {
-        boolean executando = true;
-        while (executando) {
-            exibirMenuCurso();
-            try {
-                int opcao = Integer.parseInt(input.nextLine());
-                executando = executarOpcaoCurso(opcao);
-            } catch (NumberFormatException e) {
-                System.out.println("Inserir um numero valido.");
-            }
-        }
+        return EstadoMenu.CURSO;
     }
 
     // Opções Matricula
@@ -211,13 +202,11 @@ public class Main {
     }
 
     public static void listarMatriculas() throws SQLException {
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
         for (Matricula m : matriculaService.listarMatriculas()) {
             System.out.println(m.getIdMatricula()
                     + " | " + m.getAluno().getNome()
                     + " | " + m.getCurso().getNome()
-                    + " | " + m.getData().format(formatter));
+                    + " | " + m.getData().format(formatar_data));
         }
     }
 
@@ -227,14 +216,12 @@ public class Main {
             System.out.print("ID do aluno: ");
             int idAluno = Integer.parseInt(input.nextLine());
 
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-
             Aluno aluno = alunoDAO.buscarPorId(idAluno);
             System.out.println("Cursos de " + aluno.getNome() + ":");
             for (Matricula m : matriculaService.listarCursosDeAluno(idAluno)) {
                 System.out.println("- "
                         + m.getCurso().getNome()
-                        + " | " + m.getData().format(formatter));
+                        + " | " + m.getData().format(formatar_data));
             }
         } catch (RuntimeException e) {
             System.out.println(e.getMessage());
@@ -306,7 +293,12 @@ public class Main {
 
     public static void listarAlunos() throws SQLException {
 
-        alunoService.listarAlunos();
+        for (Aluno a : alunoService.listarAlunos()) {
+            System.out.println("- "
+                    + a.getId_aluno()
+                    + " | " + a.getNome()
+                    + " | " + a.getEmail());
+        };
 
     }
 
@@ -389,17 +381,24 @@ public class Main {
 
     public static void main(String[] args) throws SQLException {
 
-        boolean executando = true;
+        EstadoMenu estadoAtual = EstadoMenu.MATRICULA;
 
-        while (executando) {
-            menuMatricula();
+        while (estadoAtual != EstadoMenu.SAIR) {
+
             try {
-                int opcao = Integer.parseInt(input.nextLine());
-                executando = executarOpcaoMatricula(opcao);
+                estadoAtual = switch (estadoAtual) {
+                    case MATRICULA -> menuMatricula();
+                    case ALUNO -> exibirMenuAluno();
+                    case CURSO -> exibirMenuCurso();
+                    default -> EstadoMenu.SAIR;
+                };
             } catch (Exception e) {
-                System.out.println("Digite um numero valido.");
+                System.out.println(e.getMessage());
             }
         }
+
+        System.out.println("Sistema encerrado.");
+        input.close();
 
     }
 }
